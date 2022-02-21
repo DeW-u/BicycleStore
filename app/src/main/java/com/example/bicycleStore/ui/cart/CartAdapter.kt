@@ -11,7 +11,7 @@ import com.example.bicycleStore.databinding.BikeRowBinding
 import com.example.bicycleStore.databinding.CartRowBinding
 import com.example.bikestore.ui.bike_list.BikeListViewModel
 
-class CartAdapter(private val list: List<Bike>, private val viewModel: CartViewModel) :
+class CartAdapter(private val list: List<Bike>) :
     RecyclerView.Adapter<CartAdapter.MyViewHolder>() {
 
     inner class MyViewHolder(val binding: CartRowBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -31,6 +31,8 @@ class CartAdapter(private val list: List<Bike>, private val viewModel: CartViewM
         return MyViewHolder(bind)
     }
 
+    var onClick: ((Bike) -> Unit)? = null
+
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.tv_producer.text = list[position].producer
         holder.tv_name.text = list[position].name
@@ -38,8 +40,7 @@ class CartAdapter(private val list: List<Bike>, private val viewModel: CartViewM
         Glide.with(context).load(list[position].image_url).into(holder.iv_bike)
 
         holder.btDelete.setOnClickListener {
-            viewModel.deleteFromCart(list[position].id)
-            Toast.makeText(context, "Usunięto " + list[position].name + " z koszyka", Toast.LENGTH_SHORT).show()
+            onClick?.let { it(list[position]) }
         }
     }
 

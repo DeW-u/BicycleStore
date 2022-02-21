@@ -56,21 +56,22 @@ class CartFragment : Fragment() {
         recyclerView = binding.cartRecyclerView
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            list.observe(viewLifecycleOwner, { it ->
+        list.observe(viewLifecycleOwner, { it ->
 
-                adapter = CartAdapter(it, viewModel)
-
-                recyclerView.adapter = adapter
-            })
-            totalPrice.observe(viewLifecycleOwner, {
-                if (it == null || it == 0) {
-                    binding.tvTotalPriceTitle.text = ("Twój koszyk jest pusty.")
-                } else {
-                    binding.tvTotalPriceTitle.text = ("Całkowita suma do zapłaty: $it PLN")
-                }
-            })
-        }
+            adapter = CartAdapter(it)
+            adapter.onClick = {
+                viewModel.deleteFromCart(it.id)
+                Toast.makeText(context, "Usunięto " + it.name + " z koszyka", Toast.LENGTH_SHORT).show()
+            }
+            recyclerView.adapter = adapter
+        })
+        totalPrice.observe(viewLifecycleOwner, {
+            if (it == null || it == 0) {
+                binding.tvTotalPriceTitle.text = ("Twój koszyk jest pusty.")
+            } else {
+                binding.tvTotalPriceTitle.text = ("Całkowita suma do zapłaty: $it PLN")
+            }
+        })
 
         binding.btCartSubmit.setOnClickListener {
             viewModel.checkout()

@@ -9,7 +9,7 @@ import com.bumptech.glide.Glide
 import com.example.bicycleStore.data.Bike
 import com.example.bicycleStore.databinding.BikeRowBinding
 
-class BikeListAdapter(private val list: List<Bike>, private val viewModel: BikeListViewModel):
+class BikeListAdapter(private val list: List<Bike>):
     RecyclerView.Adapter<BikeListAdapter.MyViewHolder>() {
 
     inner class MyViewHolder(val binding: BikeRowBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -27,6 +27,7 @@ class BikeListAdapter(private val list: List<Bike>, private val viewModel: BikeL
         context = parent.context
         return MyViewHolder(bind)
     }
+    var onClick: ((Bike)->Unit)? = null
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.tv_producer.text = list[position].producer
@@ -35,20 +36,7 @@ class BikeListAdapter(private val list: List<Bike>, private val viewModel: BikeL
         Glide.with(context).load(list[position].image_url).into(holder.iv_bike)
 
         holder.bt_cart.setOnClickListener {
-            viewModel.addToCart(list[position].id)
-            if (list[position].in_cart == 0) {
-                Toast.makeText(
-                    context,
-                    "Dodano " + list[position].name + " do koszyka",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else {
-                Toast.makeText(
-                    context,
-                    list[position].name + " jest już w koszyku",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+            onClick?.let { it(list[position]) }
         }
     }
 

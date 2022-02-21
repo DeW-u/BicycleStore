@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
@@ -16,13 +17,10 @@ import com.example.bicycleStore.data.Bike
 import com.google.android.material.transition.MaterialFade
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import kotlin.coroutines.coroutineContext
 
 @AndroidEntryPoint
 class BikeListFragment : Fragment() {
-
-    companion object {
-        fun newInstance() = BikeListFragment()
-    }
 
     private lateinit var adapter: BikeListAdapter
     private lateinit var recyclerView: RecyclerView
@@ -45,13 +43,27 @@ class BikeListFragment : Fragment() {
         recyclerView = view.findViewById(R.id.list_recycler_view)
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            list.observe(viewLifecycleOwner, { it ->
+        list.observe(viewLifecycleOwner) { it ->
 
-                adapter = BikeListAdapter(it, viewModel)
+            adapter = BikeListAdapter(it)
+            adapter.onClick = {
+                viewModel.addToCart(it.id)
+                if (it.in_cart == 0) {
+                    Toast.makeText(
+                        context,
+                        "Dodano " + it.name + " do koszyka",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        context,
+                        it.name + " jest już w koszyku",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
 
-                recyclerView.adapter = adapter
-            })
+            recyclerView.adapter = adapter
         }
     }
 
